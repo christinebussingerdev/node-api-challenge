@@ -4,59 +4,63 @@ const db = require('../data/helpers/actionModel')
 
 const router = express.Router()
 
-// GET ALL PROJECT
+// GET ALL ACTIONS
 router.get('/', (req, res) => {
   db.get()
-    .then(posts => { // SUCCESS
-      res.status(200).json(posts)
+    .then(actions => { // SUCCESS
+      res.status(200).json(actions)
     })
-    .catch(err => { // can't find projects
+    .catch(err => { // can't find actions
       console.log(err)
-      res.status(500).json({ error: "The project information could not be retrieved." })
+      res.status(500).json({ error: "The actions information could not be retrieved." })
     })
 })
 
 // ADD PROJECT
-router.post('/', (req, res) => {
-  const newProject = req.body
+router.post('/:projectId', (req, res) => {
+  const newAction = {
+    ...req.body, project_id: req.params.projectId
+  }
 
-  if (newProject.name && newProject.description) {
-    db.insert(newProject)
+  if (newAction.description && newAction.notes && newAction.project_id) {
+    db.insert(newAction)
       .then(() => { // SUCCESS
-        res.status(201).json(newProject)
+        res.status(201).json(newAction)
       })
-      .catch(err => { // saving project failed
+      .catch(err => { // saving action failed
         console.log(err)
-        res.status(500).json({ error: "There was an error while saving the project to the database" })
+        res.status(500).json({ error: "There was an error while saving the action to the database" })
       })
   } else { // info missing
-    res.status(400).json({ errorMessage: "Please provide name and description for the project." })
+    res.status(400).json({ errorMessage: "Please specify a description, notes, and a project id (in your url) for the action." })
   }
 })
 
-// UPDATE PROJECT BY ID
+// UPDATE ACTION BY ID
 router.put('/:projectId', (req, res) => {
-  const newProjectInfo = req.body // set new post info
+  const newAction = {
+    ...req.body, project_id: req.params.projectId
+  } // set new action info
 
-  if (newProjectInfo.name && newProjectInfo.description) { // check for required info
+  if (newAction.description && newAction.notes && newAction.project_id) {
     
-    const requestedProject = db.get(req.params.projectId) // grab post
+    const requestedAction = db.get(req.params.projectId) // grab action
 
-    if (requestedProject) {
+    if (requestedAction) {
       db.update(req.params.projectId, req.body)
       .then(() => { // SUCCESS
-        res.status(200).json(newProjectInfo)
+        res.status(200).json(newAction)
       })
       .catch(err => { // if update fails
         console.log(err)
-        res.status(500).json({ error: "The project information could not be modified." })
+        res.status(500).json({ error: "The action information could not be modified." })
       })
-    } else { // project id isn't valid
-      res.status(404).json({ message: "The project with the specified ID does not exist." })
+    } else { // action id isn't valid
+      res.status(404).json({ message: "The action with the specified ID does not exist." })
     }
 
-  } else { // project missing info
-    res.status(400).json({ errorMessage: "Please provide name and description for the project." })
+  } else { // action missing info
+    res.status(400).json({ errorMessage: "Please specify a description, notes, and a project id (in your url) for the action." })
   }
 })
 
