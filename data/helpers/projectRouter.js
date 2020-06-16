@@ -2,7 +2,7 @@ const express = require('express')
 
 const db = require('./projectModel')
 
-const project = express.Router()
+const router = express.Router()
 
 
 // GET ALL PROJECT
@@ -77,4 +77,4 @@ function checkForProject() {
   }
 }
 
-module.exports = project
+module.exports = router

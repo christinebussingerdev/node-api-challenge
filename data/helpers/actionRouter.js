@@ -5,7 +5,7 @@ const db = require('./actionModel')
 const action = express.Router()
 
 // GET ALL ACTIONS
-router.get('/', (req, res) => {
+action.get('/', (req, res, next) => {
   db.get()
     .then(actions => { // SUCCESS
       res.status(200).json(actions)
@@ -16,11 +16,11 @@ router.get('/', (req, res) => {
     })
 })
 
-// ADD PROJECT
-router.post('/:projectId', (req, res) => {
+// ADD ACTION
+action.post('/:projectId', (req, res, next) => {
   const newAction = {
     ...req.body, project_id: req.params.projectId
-  }
+  } // set new action info
 
   if (newAction.description && newAction.notes && newAction.project_id) {
     db.insert(newAction)
@@ -37,7 +37,7 @@ router.post('/:projectId', (req, res) => {
 })
 
 // UPDATE ACTION BY ID
-router.put('/:projectId', (req, res) => {
+action.put('/:projectId', (req, res, next) => {
   const newAction = {
     ...req.body, project_id: req.params.projectId
   } // set new action info
@@ -65,7 +65,7 @@ router.put('/:projectId', (req, res) => {
 })
 
 // DELETE PROJECT BY ID
-router.delete('/:projectId', (req, res) => {
+action.delete('/:projectId', (req, res, next) => {
   const projectToDelete = db.get(req.params.projectId) // grab relevant project
 
   if (projectToDelete) {
@@ -81,5 +81,17 @@ router.delete('/:projectId', (req, res) => {
   }
 })
 
+function checkActionData() {
+  return (req, res, next) => {
+    const newAction = {
+      ...req.body, project_id: req.params.projectId
+    }
+
+    if (newAction.description && newAction.notes && newAction.project_id) {
+      req.newAction = newAction
+      next()
+    }
+  }
+}
 
 module.exports = action
